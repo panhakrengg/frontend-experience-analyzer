@@ -1,0 +1,25 @@
+{
+  "name": "frontend-experience-analyzer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.12.3",
+  "devDependencies": {
+    "@types/node": "^26.2.0",
+    "playwright": "^1.62.1",
+    "tsx": "^4.23.12",
+    "turbo": "^2.10.11",
+    "typescript": "^7.0.2"
+  }
+}

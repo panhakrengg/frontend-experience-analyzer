@@ -1,0 +1,8 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+  - "examples/*"
+
+catalog:
+  playwright: ^1.62.1
+  typescript: ^5.7.2
