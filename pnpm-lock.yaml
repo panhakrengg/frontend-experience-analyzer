@@ -59,6 +59,10 @@ importers:
       '@frontend-experience-analyzer/rules-engine':
         specifier: workspace:*
         version: link:../../packages/rules-engine
+    devDependencies:
+      esbuild:
+        specifier: ^0.28.2
+        version: 0.28.2
 
   apps/dashboard:
     dependencies:
