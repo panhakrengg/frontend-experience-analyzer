@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { existsSync } from "node:fs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { AIAdvisor } from "@frontend-experience-analyzer/ai-advisor";
@@ -511,7 +512,18 @@ async function runDiffCommand(args: string[]): Promise<void> {
 
 async function runScanCodeCommand(args: string[]): Promise<void> {
   const options = parseOptions(args);
-  const targetDir = args[0] && !args[0].startsWith("--") ? args[0] : options.sourceDir ?? "./src";
+  let targetDir = args[0] && !args[0].startsWith("--") ? args[0] : options.sourceDir;
+  if (!targetDir) {
+    if (existsSync("./src")) {
+      targetDir = "./src";
+    } else if (existsSync("./app")) {
+      targetDir = "./app";
+    } else if (existsSync("./pages")) {
+      targetDir = "./pages";
+    } else {
+      targetDir = ".";
+    }
+  }
   const outputDir = options.outputDir ?? "reports";
 
   console.log(`\n🔍 Static Source Code Scanner`);

@@ -93,7 +93,11 @@ export class StaticCodeScanner {
             entry.name === "dist" ||
             entry.name === "build" ||
             entry.name === ".next" ||
-            entry.name === "coverage"
+            entry.name === ".nuxt" ||
+            entry.name === ".output" ||
+            entry.name === "coverage" ||
+            entry.name === "reports" ||
+            entry.name === "test-results"
           ) {
             continue;
           }
