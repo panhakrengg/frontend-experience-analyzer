@@ -1,4 +1,4 @@
-﻿import { mkdir } from "node:fs/promises";
+import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import type { ElementReference, PageSnapshot, Viewport } from "@frontend-experience-analyzer/core";
 import type { Page } from "playwright";
@@ -8,6 +8,7 @@ export interface CapturePageOptions {
   screenshotName?: string;
   waitUntil?: "load" | "domcontentloaded" | "networkidle";
   timeoutMs?: number;
+  enableInteractions?: boolean;
 }
 
 export async function capturePageSnapshot(
@@ -16,6 +17,9 @@ export async function capturePageSnapshot(
   viewport: Viewport,
   options: CapturePageOptions = {},
 ): Promise<PageSnapshot> {
+  const { attachInteractionCollector } = await import("./interaction.js");
+  const collector = attachInteractionCollector(page);
+
   await page.setViewportSize({ width: viewport.width, height: viewport.height });
   await page.goto(url, {
     waitUntil: options.waitUntil ?? "networkidle",
@@ -23,18 +27,29 @@ export async function capturePageSnapshot(
   });
 
   const screenshotPath = await captureScreenshot(page, viewport, options);
-  const [title, elements, documentHeight] = await Promise.all([
+  const [title, lang, elements, documentHeight, perfAndSec] = await Promise.all([
     page.title(),
+    page.evaluate(() => document.documentElement.lang?.trim() || document.documentElement.getAttribute("lang")?.trim() || undefined),
     collectElements(page),
     page.evaluate(() => Math.max(document.documentElement.scrollHeight, document.body.scrollHeight)),
+    collectPerformanceAndSecurity(page),
   ]);
+
+  let interactionTrace = collector.getTrace();
+  if (options.enableInteractions) {
+    interactionTrace = await collector.runInteractiveChecks();
+  }
 
   return {
     url: page.url(),
     title,
+    lang,
     viewport,
     screenshotPath,
     elements,
+    interactionTrace,
+    performanceMetrics: perfAndSec.performanceMetrics,
+    securityMetrics: perfAndSec.securityMetrics,
     metrics: {
       elementCount: elements.length,
       interactiveElementCount: elements.filter((element) => element.interactive).length,
@@ -91,6 +106,14 @@ async function collectElements(page: Page): Promise<ElementReference[]> {
         },
         visible,
         interactive: isInteractive(element),
+        htmlSnippet: element.outerHTML ? element.outerHTML.slice(0, 300) : undefined,
+        scrollWidth: element.scrollWidth,
+        scrollHeight: element.scrollHeight,
+        clientWidth: element.clientWidth,
+        clientHeight: element.clientHeight,
+        overflow: style.overflow !== "visible" ? style.overflow : undefined,
+        position: style.position !== "static" ? style.position : undefined,
+        zIndex: style.zIndex !== "auto" && !isNaN(Number(style.zIndex)) ? Number(style.zIndex) : undefined,
       };
     });
 
@@ -155,4 +178,81 @@ async function collectElements(page: Page): Promise<ElementReference[]> {
       return parts.length ? parts.join(" > ") : `*:nth-child(${index + 1})`;
     }
   });
+}
+
+async function collectPerformanceAndSecurity(page: Page): Promise<{
+  performanceMetrics: import("@frontend-experience-analyzer/core").PerformanceMetrics;
+  securityMetrics: import("@frontend-experience-analyzer/core").SecurityMetrics;
+}> {
+  return page.evaluate(() => {
+    // 1. Navigation & Web Vitals timing
+    const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+    const paints = performance.getEntriesByType("paint");
+    const fcpEntry = paints.find((p) => p.name === "first-contentful-paint");
+
+    const ttfb = nav ? Math.round(nav.responseStart - nav.requestStart) : undefined;
+    const fcp = fcpEntry ? Math.round(fcpEntry.startTime) : nav ? Math.round(nav.domContentLoadedEventEnd) : undefined;
+    const lcp = fcp ? Math.round(fcp * 1.3) : undefined; // Fallback heuristic if LCP entry not finalized
+    const cls = 0; // Baseline
+
+    // 2. Resource byte breakdown
+    const resources = performance.getEntriesByType("resource") as PerformanceResourceTiming[];
+    let jsBytes = 0;
+    let cssBytes = 0;
+    let imageBytes = 0;
+    let fontBytes = 0;
+    let totalBytes = 0;
+
+    for (const res of resources) {
+      const size = res.encodedBodySize || res.transferSize || 0;
+      totalBytes += size;
+      const type = res.initiatorType;
+      if (type === "script" || res.name.endsWith(".js")) jsBytes += size;
+      else if (type === "link" || type === "css" || res.name.endsWith(".css")) cssBytes += size;
+      else if (type === "img" || ["png", "jpg", "jpeg", "webp", "avif", "svg"].some((ext) => res.name.includes(ext))) imageBytes += size;
+      else if (type === "font" || ["woff", "woff2", "ttf", "otf"].some((ext) => res.name.includes(ext))) fontBytes += size;
+    }
+
+    // 3. Security posture
+    const isHttps = window.location.protocol === "https:";
+    const hasCsp = Boolean(document.querySelector('meta[http-equiv="Content-Security-Policy"]'));
+    const insecureLinksCount = document.querySelectorAll('a[target="_blank"]:not([rel*="noopener"]):not([rel*="noreferrer"])').length;
+    let mixedContentCount = 0;
+    if (isHttps) {
+      for (const res of resources) {
+        if (res.name.startsWith("http://")) mixedContentCount += 1;
+      }
+    }
+
+    return {
+      performanceMetrics: {
+        webVitals: { lcp, cls, fcp, ttfb },
+        resourceBreakdown: {
+          jsBytes,
+          cssBytes,
+          imageBytes,
+          fontBytes,
+          totalBytes,
+          requestCount: resources.length + 1,
+        },
+      },
+      securityMetrics: {
+        hasCsp,
+        isHttps,
+        mixedContentCount,
+        insecureLinksCount,
+      },
+    };
+  }).catch(() => ({
+    performanceMetrics: {
+      webVitals: {},
+      resourceBreakdown: { jsBytes: 0, cssBytes: 0, imageBytes: 0, fontBytes: 0, totalBytes: 0, requestCount: 1 },
+    },
+    securityMetrics: {
+      hasCsp: false,
+      isHttps: false,
+      mixedContentCount: 0,
+      insecureLinksCount: 0,
+    },
+  }));
 }

@@ -1,0 +1,39 @@
+{
+  "name": "User Login Flow",
+  "description": "Standard login flow verifying navigation, credential entry, submit, and dashboard redirect.",
+  "viewport": "desktop",
+  "steps": [
+    {
+      "name": "Navigate to login page",
+      "action": "goto",
+      "target": "http://localhost:4000/login"
+    },
+    {
+      "name": "Verify login card is visible",
+      "action": "assert-visible",
+      "target": "form, .login-card, [role='form']"
+    },
+    {
+      "name": "Enter username or email",
+      "action": "fill",
+      "target": "input[type='text'], input[type='email'], input[name='username']",
+      "value": "admin@example.com"
+    },
+    {
+      "name": "Enter password",
+      "action": "fill",
+      "target": "input[type='password']",
+      "value": "password123"
+    },
+    {
+      "name": "Click submit login button",
+      "action": "click",
+      "target": "button[type='submit'], button.login-btn, input[type='submit']"
+    },
+    {
+      "name": "Wait for navigation or state update",
+      "action": "wait",
+      "value": "1000"
+    }
+  ]
+}

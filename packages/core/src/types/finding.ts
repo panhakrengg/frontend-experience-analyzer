@@ -1,4 +1,5 @@
-﻿import type { ElementReference } from "./element.js";
+import type { ElementReference } from "./element.js";
+import type { SourceLocation } from "./framework.js";
 
 export type FindingCategory =
   | "accessibility"
@@ -36,6 +37,8 @@ export interface SuggestedFix {
 export interface Finding {
   id: string;
 
+  ruleId?: string;
+
   pageUrl?: string;
 
   category: FindingCategory;
@@ -52,9 +55,13 @@ export interface Finding {
 
   standards?: StandardReference[];
 
+  wcag?: string[];
+
   recommendation?: string;
 
   suggestedFix?: SuggestedFix;
+
+  sourceLocation?: SourceLocation;
 
   confidence: number;
 }

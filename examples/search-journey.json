@@ -1,0 +1,29 @@
+{
+  "name": "Product Search Flow",
+  "description": "Searches for an item, presses Enter, and asserts search results are displayed.",
+  "viewport": "desktop",
+  "steps": [
+    {
+      "name": "Navigate to home page",
+      "action": "goto",
+      "target": "http://localhost:4000"
+    },
+    {
+      "name": "Focus and fill search bar",
+      "action": "fill",
+      "target": "input[type='search'], input[name='q'], input[placeholder*='Search']",
+      "value": "invoices"
+    },
+    {
+      "name": "Press Enter key to execute search",
+      "action": "press",
+      "target": "input[type='search'], input[name='q'], input[placeholder*='Search']",
+      "value": "Enter"
+    },
+    {
+      "name": "Wait for results to render",
+      "action": "wait",
+      "value": "1500"
+    }
+  ]
+}

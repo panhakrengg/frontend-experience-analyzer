@@ -1,4 +1,4 @@
-﻿{
+{
   "name": "@frontend-experience-analyzer/cli",
   "version": "0.1.0",
   "private": true,
@@ -13,7 +13,14 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@frontend-experience-analyzer/ai-advisor": "workspace:*",
     "@frontend-experience-analyzer/browser": "workspace:*",
-    "@frontend-experience-analyzer/core": "workspace:*"
+    "@frontend-experience-analyzer/ci": "workspace:*",
+    "@frontend-experience-analyzer/core": "workspace:*",
+    "@frontend-experience-analyzer/framework-adapters": "workspace:*",
+    "@frontend-experience-analyzer/plugin-system": "workspace:*",
+    "@frontend-experience-analyzer/reporter": "workspace:*",
+    "@frontend-experience-analyzer/rules": "workspace:*",
+    "@frontend-experience-analyzer/rules-engine": "workspace:*"
   }
 }

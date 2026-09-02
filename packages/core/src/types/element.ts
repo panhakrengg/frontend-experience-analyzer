@@ -1,4 +1,4 @@
-﻿export interface BoundingBox {
+export interface BoundingBox {
   x: number;
   y: number;
   width: number;
@@ -27,4 +27,20 @@ export interface ElementReference {
   visible: boolean;
 
   interactive: boolean;
+
+  htmlSnippet?: string;
+
+  scrollWidth?: number;
+
+  scrollHeight?: number;
+
+  clientWidth?: number;
+
+  clientHeight?: number;
+
+  overflow?: string;
+
+  position?: string;
+
+  zIndex?: number;
 }

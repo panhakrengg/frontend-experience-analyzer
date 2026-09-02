@@ -1,0 +1,38 @@
+{
+  "$schema": "https://frontend-experience-analyzer.dev/schema.json",
+  "outputDir": "reports",
+  "failOn": "critical",
+  "sourceDir": "./src",
+  "designSystem": {
+    "approvedColors": [
+      "#ffffff",
+      "#000000",
+      "#3b82f6",
+      "#1d4ed8",
+      "#10b981",
+      "#f43f5e",
+      "#0f172a",
+      "#1e293b",
+      "rgba(255, 255, 255, 0.8)",
+      "rgb(59, 130, 246)"
+    ],
+    "approvedFonts": [
+      "Inter",
+      "Roboto",
+      "system-ui",
+      "-apple-system",
+      "sans-serif",
+      "monospace"
+    ],
+    "forbidInlineStyles": true,
+    "forbiddenClasses": [
+      "btn-legacy",
+      "old-modal-wrap",
+      "deprecated-input",
+      "v1-header"
+    ]
+  },
+  "plugins": [
+    "./examples/custom-plugin.js"
+  ]
+}

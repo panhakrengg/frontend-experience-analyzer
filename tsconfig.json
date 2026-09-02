@@ -1,4 +1,4 @@
-﻿{
+{
     "compilerOptions":  {
                             "target":  "ES2022",
                             "module":  "ESNext",
@@ -11,8 +11,19 @@
                             "skipLibCheck":  true,
                             "resolveJsonModule":  true,
                             "noUncheckedIndexedAccess":  true,
-                            "types":  [
-                                          "node"
-                                      ]
+                            "types": [
+                              "node"
+                            ],
+                            "paths": {
+                              "@frontend-experience-analyzer/core": ["./packages/core/src/index.ts"],
+                              "@frontend-experience-analyzer/browser": ["./packages/browser/src/index.ts"],
+                              "@frontend-experience-analyzer/rules": ["./packages/rules/src/index.ts"],
+                              "@frontend-experience-analyzer/rules-engine": ["./packages/rules-engine/src/index.ts"],
+                              "@frontend-experience-analyzer/reporter": ["./packages/reporter/src/index.ts"],
+                              "@frontend-experience-analyzer/ai-advisor": ["./packages/ai-advisor/src/index.ts"],
+                              "@frontend-experience-analyzer/framework-adapters": ["./packages/framework-adapters/src/index.ts"],
+                              "@frontend-experience-analyzer/ci": ["./packages/ci/src/index.ts"],
+                              "@frontend-experience-analyzer/plugin-system": ["./packages/plugin-system/src/index.ts"]
+                            }
                         }
 }
