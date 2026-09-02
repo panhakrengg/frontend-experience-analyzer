@@ -143,6 +143,51 @@ fea dashboard reports/report.json
 
 ---
 
+## 🤖 AI UX Advisor & LLM Providers
+
+The **AI UX Advisor** evaluates overall user experience maturity, identifies highest-ROI quick wins, and generates automated code remediation patches (`diff.patch`).
+
+It supports two modes:
+
+### 1. Default Offline Mode (100% Free, Zero Setup)
+When you run `fea scan-code --ai` without an API key:
+* Runs **100% offline** on your local machine with zero external network requests.
+* Mathematically calculates your **UX Maturity Score (0–100)** across accessibility, security, and responsive dimensions.
+* Uses built-in heuristic AST rules to generate instant code remediation suggestions.
+
+### 2. Live Generative LLM Mode (Gemini, OpenAI, Claude)
+To enable deep generative reasoning, full component analysis, and tailored multi-file code diffs, supply an API key using any of the following methods:
+
+#### A. Environment Variables (Recommended)
+```bash
+# Google Gemini (Default model: gemini-2.0-flash)
+export GEMINI_API_KEY="AIzaSyYourGeminiApiKey"
+# In Windows PowerShell: $env:GEMINI_API_KEY = "AIzaSyYourGeminiApiKey"
+
+# OpenAI (Default model: gpt-4o)
+export OPENAI_API_KEY="sk-proj-YourOpenAIApiKey"
+
+# Anthropic Claude (Default model: claude-3-5-sonnet-20241022)
+export ANTHROPIC_API_KEY="sk-ant-YourAnthropicApiKey"
+```
+
+#### B. CLI Flags
+```bash
+fea scan-code ./app --ai --provider gemini --model gemini-2.0-flash --apiKey "AIzaSy..."
+```
+
+#### C. In `fea.config.json`
+```json
+{
+  "advisor": {
+    "provider": "gemini",
+    "model": "gemini-2.0-flash"
+  }
+}
+```
+
+---
+
 ## 🌐 Opening Generated Reports
 
 After a scan finishes, reports are saved to `reports/report.html` and `reports/report.json`.
