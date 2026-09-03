@@ -545,10 +545,12 @@ async function runScanCodeCommand(args: string[]): Promise<void> {
 
   // Run AI UX advisor if requested
   if (options.ai) {
-    console.log("Generating AI recommendations for source findings...");
+    const rawApiKey = options.apiKey ?? options["api-key"] ?? process.env.GEMINI_API_KEY ?? process.env.OPENAI_API_KEY;
+    const provider = options.provider ?? (rawApiKey?.startsWith("sk-") ? "openai" : "gemini");
+    console.log(`Generating AI recommendations for source findings (${provider.toUpperCase()})...`);
     const advisor = new AIAdvisor({
-      provider: (options.provider as any) ?? "mock",
-      apiKey: options.apiKey,
+      provider: provider as any,
+      apiKey: rawApiKey,
       model: options.model,
     });
     result.aiAdvisor = await advisor.advise(result);

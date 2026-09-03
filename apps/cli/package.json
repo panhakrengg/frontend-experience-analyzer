@@ -1,6 +1,6 @@
 {
   "name": "@panhakreng/frontend-experience-analyzer",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "Comprehensive Frontend Experience, OWASP Security, WCAG 2.2 Accessibility, and Core Web Vitals Analyzer",
   "type": "module",
   "bin": {
