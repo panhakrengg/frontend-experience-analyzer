@@ -34,16 +34,20 @@ export class GeminiProvider implements AIProvider {
       );
 
       if (!response.ok) {
-        throw new Error(`Gemini API error: ${response.statusText}`);
+        const errText = await response.text();
+        throw new Error(`Gemini API HTTP ${response.status} (${response.statusText}): ${errText}`);
       }
 
       const data = await response.json();
       const jsonText = data.candidates?.[0]?.content?.parts?.[0]?.text;
       if (jsonText) {
+        console.log(`✨ Successfully generated AI UX analysis via Google Gemini (${this.model})`);
         return JSON.parse(jsonText) as AdvisorReport;
       }
       throw new Error("Empty response from Gemini API");
-    } catch {
+    } catch (err) {
+      console.warn(`⚠️  Gemini API warning: ${err instanceof Error ? err.message : String(err)}`);
+      console.log(`ℹ️  Falling back to offline deterministic heuristic AI provider.`);
       const fallback = new MockHeuristicProvider();
       return fallback.generateReport(analysis);
     }

@@ -332,6 +332,60 @@ export function generateHtmlReport(result: AnalysisResult): string {
       border-radius: 12px;
       color: var(--muted);
     }
+    
+    .advisor-card {
+      background: linear-gradient(135deg, rgba(37,99,235,0.06) 0%, rgba(147,51,234,0.08) 100%);
+      border: 1px solid rgba(147,51,234,0.3);
+      border-radius: 12px;
+      padding: 22px;
+      margin-bottom: 24px;
+    }
+    .advisor-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .advisor-badge {
+      background: #9333ea;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+    .advisor-score {
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--text);
+    }
+    .advisor-summary {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text);
+      margin-bottom: 14px;
+    }
+    .quick-win-item {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-top: 10px;
+    }
+    .diff-box {
+      background: var(--code-bg);
+      border-radius: 6px;
+      padding: 10px;
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      margin-top: 8px;
+      overflow-x: auto;
+    }
+    .diff-del { color: var(--critical); }
+    .diff-add { color: var(--success); }
   </style>
 </head>
 <body>
@@ -428,6 +482,7 @@ export function generateHtmlReport(result: AnalysisResult): string {
 
     <!-- RIGHT CONTENT AREA -->
     <main class="content">
+      ${result.aiAdvisor ? renderAdvisorSection(result.aiAdvisor) : ""}
       
       <!-- SEARCH INPUT -->
       <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search issues by file path, component name, rule ID, or description..." oninput="onSearchChange()">
@@ -566,4 +621,47 @@ export function generateHtmlReport(result: AnalysisResult): string {
 
 </body>
 </html>`;
+}
+
+function renderAdvisorSection(advisor: AdvisorReport): string {
+  const scoreColor = advisor.uxMaturityScore >= 80 ? "var(--success)" : advisor.uxMaturityScore >= 60 ? "var(--medium)" : "var(--critical)";
+  return `
+    <section class="advisor-card">
+      <div class="advisor-top">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <span class="advisor-badge">🤖 AI UX ADVISOR</span>
+          <h2 style="margin:0; font-size:18px;">Executive UX Assessment</h2>
+        </div>
+        <div style="text-align:right;">
+          <span style="font-size:12px; color:var(--muted); display:block;">UX Maturity Score</span>
+          <span class="advisor-score" style="color:${scoreColor};">${advisor.uxMaturityScore}/100</span>
+        </div>
+      </div>
+      <div class="advisor-summary">
+        ${escapeHtml(advisor.executiveSummary)}
+      </div>
+      ${advisor.topQuickWins && advisor.topQuickWins.length ? `
+        <h4 style="margin: 16px 0 8px; font-size:13px; text-transform:uppercase; letter-spacing:0.04em; color:var(--muted);">
+          🏆 Top Quick Wins & AI Fix Recommendations
+        </h4>
+        <div>
+          ${advisor.topQuickWins.map((win) => `
+            <div class="quick-win-item">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <strong>${escapeHtml(win.title)}</strong>
+                <span class="badge ${win.impact}">${escapeHtml(win.impact)}</span>
+              </div>
+              <p style="margin: 6px 0; font-size:13px; color:var(--text);">${escapeHtml(win.rationale)}</p>
+              ${win.suggestedFix ? `
+                <div class="diff-box">
+                  <div class="diff-del">- ${escapeHtml(win.suggestedFix.beforeCode)}</div>
+                  <div class="diff-add">+ ${escapeHtml(win.suggestedFix.afterCode)}</div>
+                </div>
+              ` : ""}
+            </div>
+          `).join("\n")}
+        </div>
+      ` : ""}
+    </section>
+  `;
 }

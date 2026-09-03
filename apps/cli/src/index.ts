@@ -599,6 +599,27 @@ async function runScanCodeCommand(args: string[]): Promise<void> {
     }
   }
 
+  if (result.aiAdvisor) {
+    const providerName = options.provider ? options.provider.toUpperCase() : "HEURISTIC";
+    console.log(`\n========================================================`);
+    console.log(`🤖 AI UX ADVISOR ASSESSMENT (${providerName})`);
+    console.log(`========================================================`);
+    console.log(`🎯 UX Maturity Score: ${result.aiAdvisor.uxMaturityScore}/100`);
+    console.log(`💡 Executive Summary: ${result.aiAdvisor.executiveSummary}\n`);
+    if (result.aiAdvisor.topQuickWins && result.aiAdvisor.topQuickWins.length > 0) {
+      console.log(`🏆 Top Quick Wins & AI Fix Recommendations:`);
+      for (const win of result.aiAdvisor.topQuickWins) {
+        console.log(` • [${win.impact.toUpperCase()}] ${win.title}`);
+        console.log(`   Rationale: ${win.rationale}`);
+        if (win.suggestedFix) {
+          console.log(`   Fix (${win.suggestedFix.language}):`);
+          console.log(`     - ${win.suggestedFix.beforeCode}`);
+          console.log(`     + ${win.suggestedFix.afterCode}`);
+        }
+      }
+    }
+  }
+
   console.log(`\n========================================================`);
   console.log(`📄 Full JSON Report: ${jsonPath}`);
   console.log(`🌐 Full HTML Report: ${htmlPath}`);
